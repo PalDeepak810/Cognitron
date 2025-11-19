@@ -1,0 +1,18 @@
+server:
+  8081
+
+spring:
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+  jackson:
+    serializer:
+      indent_output: true
+
+cognitron:
+  rabbitmq:
+    exchange: content-exchange
+    routing-key: crawl.key
+    queue: content-crawl-queue
