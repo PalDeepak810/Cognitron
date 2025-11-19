@@ -1,18 +1,20 @@
 package com.proc.proc.Listener;
 
 import com.proc.proc.Model.CrawlMessage;
+import com.proc.proc.Service.CrawledPageService;
 import com.proc.proc.Service.TextProcessorService;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class CrawlMessageListener {
 
-    private final TextProcessorService textProcessorService;
+   @Autowired
+   private TextProcessorService textProcessorService;
 
-    public CrawlMessageListener(TextProcessorService textProcessorService) {
-        this.textProcessorService = textProcessorService;
-    }
+   @Autowired
+   private CrawledPageService crawledPageService;
 
     @RabbitListener(queues = "content-crawl-queue")
     public void processMessage(CrawlMessage message) {
@@ -20,7 +22,9 @@ public class CrawlMessageListener {
         String cleanedText = textProcessorService.cleanText(message.getHtml());
         message.setText(cleanedText);
 
-        // Todo
-        System.out.println("Cleaned text length: " + cleanedText.length());
+        crawledPageService.save(message);
+
+        System.out.println("saved page:"+message.getUrl());
+        System.out.println("Cleaned text length:"+cleanedText.length());
     }
 }

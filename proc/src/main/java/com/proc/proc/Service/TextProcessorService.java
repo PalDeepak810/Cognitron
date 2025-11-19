@@ -11,7 +11,6 @@ public class TextProcessorService {
         String text = htmlContent.replaceAll("<[^>]*>"," ");
         text = text.replaceAll("&[^;]+;"," ");
         text = text.replaceAll("[\\s]+"," ").trim();
-        System.out.println(text);
         return text;
     }
 }
