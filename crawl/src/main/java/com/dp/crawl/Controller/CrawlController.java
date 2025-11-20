@@ -3,6 +3,7 @@ package com.dp.crawl.Controller;
 import com.dp.crawl.Model.CrawlMessage;
 import com.dp.crawl.Service.PublishService;
 import com.dp.crawl.Service.WebFetcherService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,13 +14,11 @@ import com.dp.crawl.Model.CrawlRequestBody;
 @RestController
 @RequestMapping("/api/crawl")
 public class CrawlController {
-    private final WebFetcherService webFetcherService;
-    private final PublishService publishService;
+   @Autowired
+   private WebFetcherService webFetcherService;
 
-    public CrawlController(WebFetcherService webFetcherService, PublishService publishService) {
-        this.webFetcherService = webFetcherService;
-        this.publishService = publishService;
-    }
+   @Autowired
+   private PublishService publishService;
 
     @PostMapping
     public ResponseEntity<?> crawlUrl(@RequestBody CrawlRequestBody body) {

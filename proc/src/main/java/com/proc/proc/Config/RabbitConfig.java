@@ -2,36 +2,44 @@ package com.proc.proc.Config;
 
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
-import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.core.QueueBuilder;
+import org.springframework.amqp.core.Queue;            // ✔ Correct Queue
 import org.springframework.amqp.core.TopicExchange;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class RabbitConfig {
 
-    public static final String QUEUE_NAME = "cognitron-crawl";
-    public static final String EXCHANGE_NAME = "cognitron-exchange";
-    public static final String ROUTING_KEY = "crawl.key";
+    @Value("${rabbitmq.queue}")
+    private String queueName;
+
+    @Value("${rabbitmq.exchange}")
+    private String exchangeName;
+
+    @Value("${rabbitmq.routing-key}")
+    private String routingKey;
+
 
     @Bean
     public Queue crawlQueue() {
-        return new Queue(QUEUE_NAME, true);
+        return QueueBuilder.durable(queueName).build();
     }
 
     @Bean
     public TopicExchange crawlExchange() {
-        return new TopicExchange(EXCHANGE_NAME);
+        return new TopicExchange(exchangeName);
     }
 
     @Bean
     public Binding binding(Queue crawlQueue, TopicExchange crawlExchange) {
-        return BindingBuilder.bind(crawlQueue).to(crawlExchange).with(ROUTING_KEY);
+        return BindingBuilder.bind(crawlQueue).to(crawlExchange).with(routingKey);
     }
 
     @Bean
-    public Jackson2JsonMessageConverter jsonMessageConverter() {
+    public Jackson2JsonMessageConverter jackson2JsonMessageConverter() {
         return new Jackson2JsonMessageConverter();
     }
 }
