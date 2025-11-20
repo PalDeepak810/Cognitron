@@ -3,6 +3,14 @@
 # Cognitron
 🕸️ Web Crawler System DocumentationThis repository contains the architecture and code for a robust, distributed, and automated web crawling system. It is designed to manage the continuous discovery, processing, and storage of web pages using a highly decoupled messaging pipeline.
 
+
+**Visual Representation of the Crawl Flow:**
+
+![Web Crawler Architecture Diagram: Shows the flow from User Seed URL injection, through the two queues (DiscoveredLinks and Message Queue), and finally to the Processor service and Database before looping new links back to the DiscoveredLinks queue.](assets/archdiagramcognitron.png.jpg)
+
+---
+
+
 🧭 System OverviewThe system operates as a continuous loop involving two core services communicating via two dedicated RabbitMQ queues. This design ensures separation of concerns, scalability, and automated link discovery.
 
 🚀 System Architecture & FlowThe system uses two services to manage the flow of data: the Crawler Service (Producer/Consumer) and the Processor Service (Consumer/Producer).
