@@ -16,3 +16,4 @@ cognitron:
     exchange: content-exchange
     routing-key: crawl.key
     queue: content-crawl-queue
+    discovered-queue: discovered-links-queue

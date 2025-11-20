@@ -13,13 +13,11 @@ public class DiscoveredLinkPublisher {
     @Autowired
     private AmqpTemplate amqpTemplate;
 
-    private final String QUEUE_NAME = "content-crawl-queue";
+    private final String QUEUE_NAME = "discovered-links-queue";
 
 
     public void publish(String url) {
-        CrawlMessage message = new CrawlMessage();
-        message.setUrl(url);
-        amqpTemplate.convertAndSend(QUEUE_NAME, message); // ✔ send CrawlMessage object
+        amqpTemplate.convertAndSend(QUEUE_NAME, url);
     }
 
 

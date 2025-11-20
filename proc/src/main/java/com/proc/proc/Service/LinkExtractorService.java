@@ -4,6 +4,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -18,27 +19,36 @@ public class LinkExtractorService {
 
 
     public Set<String> extractLinks(String html) {
+        if (html == null || html.isBlank()) {
+            return Collections.emptySet();
+        }
+
         Set<String> links = new HashSet<>();
         Document doc = Jsoup.parse(html);
 
         doc.select("a[href]").forEach(element -> {
             String url = element.attr("abs:href").trim();
-            if (!url.isEmpty()) links.add(url);
+            if (!url.isEmpty()) {
+                links.add(url);
+            }
         });
 
         return links;
     }
 
+
     public Set<String> filterLinks(Set<String> rawLinks) {
+        if (rawLinks == null || rawLinks.isEmpty()) {
+            return Collections.emptySet();
+        }
+
         Set<String> filtered = new HashSet<>();
 
         rawLinks.forEach(url -> {
             if (url.isBlank()) return;
 
-            if (url.startsWith("javascript:") ||
-                    url.startsWith("mailto:") ||
-                    url.startsWith("tel:"))
-                return;
+
+            if (url.startsWith("javascript:") || url.startsWith("mailto:") || url.startsWith("tel:")) return;
 
             if (!url.startsWith("http")) return;
 
