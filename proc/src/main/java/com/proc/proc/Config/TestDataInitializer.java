@@ -18,7 +18,7 @@ public class TestDataInitializer implements CommandLineRunner {
     public void run(String... args) {
         if (jobPostingRepo.count() == 0) {
             createTestJobs();
-            System.out.println("✅ Test data created: " + jobPostingRepo.count() + " jobs");
+            System.out.println(" Test data created: " + jobPostingRepo.count() + " jobs");
         }
     }
 
