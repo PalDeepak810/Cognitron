@@ -6,19 +6,25 @@ import java.time.LocalDateTime;
 
 @Entity
 public class CrawledPage {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
-    String url;
-    String title;
-    @Column(columnDefinition = "LONGTEXT")
-    String text;
+    private Long id;
+
+    @Column(columnDefinition = "TEXT", nullable = false)
+    private String url;
+
+    private String title;
 
     @Column(columnDefinition = "LONGTEXT")
-    String html;
-    String source;
+    private String text;
 
-    LocalDateTime crawledAt;
+    @Column(columnDefinition = "LONGTEXT")
+    private String html;
+
+    private String source;
+
+    private LocalDateTime crawledAt;
 
     public CrawledPage() {
     }

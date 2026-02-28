@@ -3,10 +3,11 @@ package com.proc.proc.Controller;
 import com.proc.proc.Model.CrawledPage;
 import com.proc.proc.Repository.CrawledPageRepo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Page;
+
 
 import java.util.List;
 
@@ -26,4 +27,29 @@ public class CrawledPageController {
     public CrawledPage getOne(@PathVariable Long id){
         return crawledPageRepo.findById(id).orElse(null);
     }
+
+
+    @GetMapping("/search")
+    public Page<CrawledPage> search(
+            @RequestParam String keyword,
+            @RequestParam(defaultValue = "0") int page
+    ) {
+        return crawledPageRepo.searchByKeyword(
+                keyword,
+                PageRequest.of(page, 10, Sort.by("crawledAt").descending())
+        );
+    }
+
+    @GetMapping("/search/title")
+    public Page<CrawledPage> searchByTitle(
+            @RequestParam String title,
+            @RequestParam(defaultValue = "0") int page
+    ) {
+        return crawledPageRepo.findByTitleContainingIgnoreCaseOrderByCrawledAtDesc(
+                title,
+                PageRequest.of(page, 10, Sort.by("crawledAt").descending())
+        );
+    }
+
+
 }

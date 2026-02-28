@@ -1,30 +1,30 @@
 package com.dp.crawl.Listener;
 
 import com.dp.crawl.Model.CrawlMessage;
-import com.dp.crawl.Service.WebFetcherService;
-import org.springframework.amqp.core.AmqpTemplate;
+import com.dp.crawl.Service.PublishService;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
 public class DiscoveredLinkListener {
 
     @Autowired
-    private AmqpTemplate amqpTemplate;
-
-    @Value("${cognitron.rabbitmq.queue}")
-    private String crawlQueueName;
-
-    @Autowired
-    private WebFetcherService webFetcherService;
+    private PublishService publishService;
 
     @RabbitListener(queues = "${cognitron.rabbitmq.discovered-queue}")
-    public void processDiscoveredLink(String url) {
-        if (url == null || url.isBlank()) return;
+    public void processDiscoveredLink(CrawlMessage parentMsg) {
 
-        CrawlMessage message = webFetcherService.fetch(url);
-        amqpTemplate.convertAndSend(crawlQueueName, message);
+        if (parentMsg == null || parentMsg.getUrl() == null || parentMsg.getConfig() == null) {
+            return;
+        }
+
+        CrawlMessage msg = new CrawlMessage();
+        msg.setUrl(parentMsg.getUrl());
+        msg.setDepth(parentMsg.getDepth());   // depth already incremented by processor
+        msg.setParentUrl(parentMsg.getParentUrl());
+        msg.setConfig(parentMsg.getConfig()); // SAME CONFIG
+
+        publishService.publish(msg);
     }
 }

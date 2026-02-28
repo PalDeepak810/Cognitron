@@ -14,6 +14,8 @@ public class CrawlMessage {
     private int depth;
     private String parentUrl;
 
+    private  CrawlConfig config;
+
 
 
     public CrawlMessage() {
@@ -93,5 +95,13 @@ public class CrawlMessage {
 
     public void setCrawledAt(OffsetDateTime crawledAt) {
         this.crawledAt = crawledAt;
+    }
+
+    public CrawlConfig getConfig() {
+        return config;
+    }
+
+    public void setConfig(CrawlConfig config) {
+        this.config = config;
     }
 }
