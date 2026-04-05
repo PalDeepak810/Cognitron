@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/crawl")
@@ -38,11 +39,14 @@ public class CrawlController {
         config.setMaxDepth(body.getMaxDepth() != null ? body.getMaxDepth() : 2);
         config.setRestrictDomain(body.getRestrictDomain() != null ? body.getRestrictDomain() : true);
         config.setMaxPages(body.getMaxPages() != null ? body.getMaxPages() : 10);
+        String runId = UUID.randomUUID().toString();
 
         CrawlMessage msg = new CrawlMessage();
         msg.setUrl(body.getUrl());
         msg.setDepth(0);
         msg.setConfig(config);
+        msg.setRunId(runId);
+        msg.setRunPageLimit(config.getMaxPages());
 
         publishService.publish(msg);
 
@@ -58,6 +62,7 @@ public class CrawlController {
         config.setMaxDepth(1);
         config.setRestrictDomain(true);
         config.setMaxPages(5);
+        String runId = UUID.randomUUID().toString();
         
         int queuedCount = 0;
         for (String url : urls) {
@@ -65,6 +70,8 @@ public class CrawlController {
             msg.setUrl(url);
             msg.setDepth(0);
             msg.setConfig(config);
+            msg.setRunId(runId);
+            msg.setRunPageLimit(config.getMaxPages());
             publishService.publish(msg);
             queuedCount++;
         }

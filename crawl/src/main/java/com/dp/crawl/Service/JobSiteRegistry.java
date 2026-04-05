@@ -18,7 +18,7 @@ public class JobSiteRegistry {
         String encodedLocation = encodeUrl(location);
         
         urls.add(buildNaukriUrl(encodedTitle, encodedLocation));
-        urls.add(buildIndeedUrl(encodedTitle, encodedLocation));
+        urls.add(buildIndeedUrl(encodedTitle, encodedLocation)); // Re-enabled with Selenium
         urls.add(buildLinkedInUrl(encodedTitle, encodedLocation));
         
         return urls;

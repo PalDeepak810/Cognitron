@@ -8,6 +8,8 @@ public class CrawlMessage {
     private String text;
     private String html;
     private String source;
+    private String runId;
+    private Integer runPageLimit;
 
     private OffsetDateTime crawledAt;
 
@@ -103,5 +105,21 @@ public class CrawlMessage {
 
     public void setConfig(CrawlConfig config) {
         this.config = config;
+    }
+
+    public String getRunId() {
+        return runId;
+    }
+
+    public void setRunId(String runId) {
+        this.runId = runId;
+    }
+
+    public Integer getRunPageLimit() {
+        return runPageLimit;
+    }
+
+    public void setRunPageLimit(Integer runPageLimit) {
+        this.runPageLimit = runPageLimit;
     }
 }

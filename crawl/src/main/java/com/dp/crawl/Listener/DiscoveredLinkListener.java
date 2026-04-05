@@ -24,6 +24,8 @@ public class DiscoveredLinkListener {
         msg.setDepth(parentMsg.getDepth());   // depth already incremented by processor
         msg.setParentUrl(parentMsg.getParentUrl());
         msg.setConfig(parentMsg.getConfig()); // SAME CONFIG
+        msg.setRunId(parentMsg.getRunId());
+        msg.setRunPageLimit(parentMsg.getRunPageLimit());
 
         publishService.publish(msg);
     }
