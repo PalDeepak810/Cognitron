@@ -1,0 +1,60 @@
+name: Proc CI
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "proc/**"
+      - ".github/workflows/proc-ci.yml"
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "proc/**"
+      - ".github/workflows/proc-ci.yml"
+
+jobs:
+  test-proc:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: cognitron
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+      rabbitmq:
+        image: rabbitmq:3-management
+        ports:
+          - 5672:5672
+    env:
+      SPRING_DATASOURCE_URL: jdbc:mysql://127.0.0.1:3306/cognitron?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_RABBITMQ_HOST: 127.0.0.1
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: guest
+      SPRING_RABBITMQ_PASSWORD: guest
+      SPRING_MAIL_HOST: localhost
+      SPRING_MAIL_PORT: 1025
+    defaults:
+      run:
+        working-directory: proc
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      - name: Run Proc Tests
+        run: ./mvnw -B test
