@@ -42,7 +42,7 @@ public class JobPosting {
     @Column(columnDefinition = "TEXT")
     private String description;
     
-    @Column(nullable = false, length = 1000)
+    @Column(nullable = false, length = 500)
     private String applicationLink;
     
     @Column(nullable = false, length = 50)

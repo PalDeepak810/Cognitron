@@ -5,11 +5,7 @@ import com.proc.proc.Model.JobPosting;
 import com.proc.proc.Model.VisitedUrl;
 import com.proc.proc.Repository.JobPostingRepo;
 import com.proc.proc.Repository.VisitedUrlRepo;
-import com.proc.proc.Service.CrawledPageService;
-import com.proc.proc.Service.DiscoveredLinkPublisher;
-import com.proc.proc.Service.JobExtractionService;
-import com.proc.proc.Service.LinkExtractorService;
-import com.proc.proc.Service.SkillExtractor;
+import com.proc.proc.Service.*;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -43,6 +39,12 @@ public class CrawlMessageListener {
     @Autowired
     private VisitedUrlRepo visitedUrlRepo;
 
+    @Autowired
+    private SeleniumService seleniumService;
+
+    @Autowired
+    private CrawlQuotaService crawlQuotaService;
+
     @RabbitListener(queues = "content-crawl-queue")
     public void processMessage(CrawlMessage msg) {
 
@@ -52,20 +54,11 @@ public class CrawlMessageListener {
             return;
         }
 
-        System.out.println(">>> Received URL: " + msg.getUrl());
+        System.out.println(">>> Received URL: " + msg.getUrl() + " | runId=" + msg.getRunId());
 
         // DEPTH CHECK
         if (msg.getDepth() > msg.getConfig().getMaxDepth()) {
             System.out.println(">>> Max depth reached");
-            return;
-        }
-
-        //  MAX PAGES CHECK (SAFE)
-        Integer maxPages = msg.getConfig().getMaxPages();
-        long crawledCount = visitedUrlRepo.count();
-
-        if (maxPages != null && maxPages > 0 && crawledCount >= maxPages) {
-            System.out.println(">>> Max pages reached");
             return;
         }
 
@@ -76,17 +69,38 @@ public class CrawlMessageListener {
             return;
         }
 
+        // GLOBAL 24H BUDGET CHECK
+        if (crawlQuotaService.remainingGlobalBudget() <= 0) {
+            System.out.println(">>> Global 24h crawl budget reached | runId=" + msg.getRunId());
+            return;
+        }
+
+        // PER-RUN BUDGET CHECK
+        if (!crawlQuotaService.tryAcquireRunSlot(msg.getRunId(), msg.getRunPageLimit())) {
+            System.out.println(">>> Run page limit reached | runId=" + msg.getRunId());
+            return;
+        }
+
         visitedUrlRepo.save(new VisitedUrl(msg.getUrl(), hash));
 
         //FETCH
         Document doc;
         try {
-            doc = Jsoup.connect(msg.getUrl())
-                    .userAgent("Cognitron-Processor/1.0")
-                    .timeout(15000)
-                    .get();
+            if (seleniumService.isSeleniumRequired(msg.getUrl())) {
+                System.out.println(">>> Using Selenium for: " + msg.getUrl());
+                doc = seleniumService.fetchDynamicPage(msg.getUrl());
+                if (doc == null) {
+                    System.out.println(">>> Selenium fetch failed, skipping");
+                    return;
+                }
+            } else {
+                doc = Jsoup.connect(msg.getUrl())
+                        .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
+                        .timeout(15000)
+                        .get();
+            }
         } catch (Exception e) {
-            System.out.println(">>> Fetch failed");
+            System.out.println(">>> Fetch failed: " + e.getMessage());
             return;
         }
 
@@ -95,7 +109,6 @@ public class CrawlMessageListener {
         msg.setText(doc.body() != null ? doc.body().text() : "");
 
         if (!linkExtractorService.isRelevant(msg)) {
-            System.out.println(">>> Irrelevant page skipped");
             return;
         }
 
@@ -103,7 +116,7 @@ public class CrawlMessageListener {
         try {
             JobPosting job = jobExtractionService.extractJobFromHtml(doc, msg.getUrl());
             
-            if (job.getTitle() != null && job.getCompany() != null) {
+            if (job.getTitle() != null && job.getCompany() != null && job.getLocation() != null) {
                 // Extract skills from description
                 if (job.getDescription() != null) {
                     String skills = skillExtractor.extractSkills(job.getDescription());
@@ -117,13 +130,11 @@ public class CrawlMessageListener {
                 
                 if (existing.isEmpty()) {
                     jobPostingRepo.save(job);
-                    System.out.println(">>> Job saved: " + job.getTitle());
-                } else {
-                    System.out.println(">>> Duplicate job skipped");
+                    System.out.println("✓ Job saved: " + job.getTitle() + " at " + job.getCompany());
                 }
             }
         } catch (Exception e) {
-            System.out.println(">>> Job extraction failed: " + e.getMessage());
+            System.out.println("✗ Job extraction failed: " + e.getMessage());
         }
 
         crawledPageService.save(msg);
@@ -133,9 +144,12 @@ public class CrawlMessageListener {
 
         Set<String> filteredLinks = linkExtractorService.filterLinks(links, msg);
 
-        for (String link : filteredLinks) {
+        long remainingRunBudget = crawlQuotaService.remainingRunBudget(msg.getRunId(), msg.getRunPageLimit());
+        long remainingGlobalBudget = crawlQuotaService.remainingGlobalBudget();
+        long remainingBudget = Math.min(remainingRunBudget, remainingGlobalBudget);
 
-            if (visitedUrlRepo.count() >= msg.getConfig().getMaxPages()) {
+        for (String link : filteredLinks) {
+            if (remainingBudget <= 0) {
                 break;
             }
             CrawlMessage child = new CrawlMessage();
@@ -143,8 +157,11 @@ public class CrawlMessageListener {
             child.setDepth(msg.getDepth() + 1);
             child.setParentUrl(msg.getUrl());
             child.setConfig(msg.getConfig());
+            child.setRunId(msg.getRunId());
+            child.setRunPageLimit(msg.getRunPageLimit());
 
             discoveredLinkPublisher.publish(child);
+            remainingBudget--;
         }
     }
 

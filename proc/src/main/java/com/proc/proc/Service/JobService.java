@@ -25,22 +25,27 @@ public class JobService {
     }
 
     public List<JobPosting> searchJobs(String title, String location, String skills) {
+        // Handle empty strings as null
+        final String finalTitle = (title != null && title.trim().isEmpty()) ? null : title;
+        final String finalLocation = (location != null && location.trim().isEmpty()) ? null : location;
+        final String finalSkills = (skills != null && skills.trim().isEmpty()) ? null : skills;
+
         List<JobPosting> results;
 
-        if (title != null && location != null) {
-            results = jobPostingRepo.findByTitleContainingIgnoreCaseAndLocationContainingIgnoreCase(title, location);
-        } else if (title != null) {
-            results = jobPostingRepo.findByTitleContainingIgnoreCaseAndLocationContainingIgnoreCase(title, "");
-        } else if (location != null) {
-            results = jobPostingRepo.findByTitleContainingIgnoreCaseAndLocationContainingIgnoreCase("", location);
+        if (finalTitle != null && finalLocation != null) {
+            results = jobPostingRepo.findByTitleContainingIgnoreCaseAndLocationContainingIgnoreCase(finalTitle, finalLocation);
+        } else if (finalTitle != null) {
+            results = jobPostingRepo.findByTitleContainingIgnoreCaseAndLocationContainingIgnoreCase(finalTitle, "");
+        } else if (finalLocation != null) {
+            results = jobPostingRepo.findByTitleContainingIgnoreCaseAndLocationContainingIgnoreCase("", finalLocation);
         } else {
             results = jobPostingRepo.findAll();
         }
 
-        if (skills != null && !skills.isEmpty()) {
+        if (finalSkills != null) {
             results = results.stream()
                     .filter(job -> job.getSkills() != null && 
-                           job.getSkills().toLowerCase().contains(skills.toLowerCase()))
+                           job.getSkills().toLowerCase().contains(finalSkills.toLowerCase()))
                     .collect(Collectors.toList());
         }
 
