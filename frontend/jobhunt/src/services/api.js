@@ -4,6 +4,7 @@ const normalizeBase = (value, fallback) => (value || fallback).replace(/\/$/, ''
 
 const PROC_API_BASE_URL = normalizeBase(import.meta.env.VITE_PROC_API_BASE_URL, '/api');
 const CRAWL_API_BASE_URL = normalizeBase(import.meta.env.VITE_CRAWL_API_BASE_URL, '/api/crawl');
+const OBSERVATORY_WS_URL = normalizeBase(import.meta.env.VITE_OBSERVATORY_WS_URL, 'ws://localhost:8082/ws/observatory');
 
 const procClient = axios.create({
   baseURL: PROC_API_BASE_URL,
@@ -27,6 +28,17 @@ export const jobAPI = {
 
 export const dashboardAPI = {
   getOverview: () => procClient.get('/dashboard/overview'),
+};
+
+export const observatoryAPI = {
+  getActiveCrawls: () => procClient.get('/observatory/crawls/active'),
+  getCrawlHistory: (params) => procClient.get('/observatory/crawls/history', { params }),
+  getTrace: (id) => procClient.get(`/observatory/trace/${id}`),
+  getQueues: () => procClient.get('/observatory/queues'),
+  getMetrics: (timeRange = '24h') => procClient.get('/observatory/metrics', { params: { timeRange } }),
+  getThroughput: (timeRange = '24h', interval = '5m') =>
+    procClient.get('/observatory/throughput', { params: { timeRange, interval } }),
+  getWsUrl: () => OBSERVATORY_WS_URL,
 };
 
 export const crawlAPI = {

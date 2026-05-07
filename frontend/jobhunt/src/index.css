@@ -376,6 +376,11 @@ a {
   color: #1f427e;
 }
 
+.chip-muted {
+  background: rgba(100, 116, 139, 0.14);
+  color: #475569;
+}
+
 .skill-wrap {
   display: flex;
   flex-wrap: wrap;
@@ -497,6 +502,109 @@ a {
   letter-spacing: 0.05em;
 }
 
+.mini-chart-wrap {
+  margin-top: 0.75rem;
+}
+
+.mini-chart {
+  width: 100%;
+  height: 130px;
+  border-radius: 12px;
+  background: rgba(16, 70, 150, 0.06);
+  border: 1px solid rgba(21, 66, 130, 0.12);
+}
+
+.queue-trend-wrap {
+  margin-top: 0.75rem;
+}
+
+.queue-bars {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.queue-bar-row {
+  display: grid;
+  grid-template-columns: 180px 1fr auto;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.queue-bar-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.queue-bar-track {
+  height: 10px;
+  background: rgba(21, 52, 112, 0.12);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.queue-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-secondary), var(--accent-primary));
+  border-radius: 999px;
+}
+
+.queue-bar-value {
+  font-family: "Orbitron", "Segoe UI", sans-serif;
+  font-size: 0.75rem;
+}
+
+.diag-grid {
+  margin-top: 0.7rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+
+.diag-item {
+  border: 1px solid rgba(17, 56, 113, 0.14);
+  background: rgba(255, 255, 255, 0.72);
+  border-radius: 12px;
+  padding: 0.55rem 0.65rem;
+  display: grid;
+  gap: 0.2rem;
+}
+
+.diag-key {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.diag-val {
+  font-size: 0.82rem;
+  color: var(--text-main);
+}
+
+.diag-badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.28rem 0.58rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.diag-ok {
+  background: rgba(16, 185, 129, 0.16);
+  color: #065f46;
+}
+
+.diag-warn {
+  background: rgba(245, 158, 11, 0.2);
+  color: #92400e;
+}
+
+.diag-bad {
+  background: rgba(239, 68, 68, 0.18);
+  color: #991b1b;
+}
+
 .page-enter {
   animation: fadeUp 0.45s ease;
 }
@@ -534,6 +642,10 @@ a {
 
   .metric-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .diag-grid {
+    grid-template-columns: 1fr;
   }
 
   .job-cards {

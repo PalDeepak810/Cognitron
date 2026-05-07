@@ -4,6 +4,7 @@ const navItems = [
   { to: '/', label: 'Portal' },
   { to: '/jobs', label: 'Search Grid' },
   { to: '/dashboard', label: 'Telemetry' },
+  { to: '/observatory', label: 'Observatory' },
 ];
 
 export default function Header() {

@@ -3,6 +3,9 @@ import Header from './components/Header';
 import LandingPage from './pages/LandingPage';
 import JobsPage from './pages/JobsPage';
 import DashboardPage from './pages/DashboardPage';
+import ObservatoryPage from './pages/ObservatoryPage';
+import ObservatoryHistoryPage from './pages/ObservatoryHistoryPage';
+import ObservatoryTracePage from './pages/ObservatoryTracePage';
 
 function App() {
   return (
@@ -14,6 +17,9 @@ function App() {
             <Route path="/" element={<LandingPage />} />
             <Route path="/jobs" element={<JobsPage />} />
             <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/observatory" element={<ObservatoryPage />} />
+            <Route path="/observatory/history" element={<ObservatoryHistoryPage />} />
+            <Route path="/observatory/trace/:id" element={<ObservatoryTracePage />} />
           </Routes>
         </main>
       </div>
