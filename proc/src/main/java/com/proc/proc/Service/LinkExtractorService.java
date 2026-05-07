@@ -1,7 +1,6 @@
 package com.proc.proc.Service;
 
 import com.proc.proc.Model.CrawlConfig;
-import com.proc.proc.Model.CrawlMessage;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.stereotype.Service;
@@ -40,20 +39,17 @@ public class LinkExtractorService {
         return links;
     }
 
-    public Set<String> filterLinks(Set<String> raw, CrawlMessage msg) {
-        CrawlConfig config = msg.getConfig();
+    public Set<String> filterLinks(Set<String> raw, String currentUrl, int currentDepth, CrawlConfig config) {
         if (config == null) {
             return Set.of();
         }
 
-        int depth = msg.getDepth();
-
-        if (depth >= config.getMaxDepth()) return Set.of();
+        if (currentDepth >= config.getMaxDepth()) return Set.of();
 
         return raw.stream()
                 .filter(url -> !hasBlockedExtension(url))
                 .filter(this::isValidUrl)
-                .filter(url -> config.isRestrictDomain() ? sameDomain(url, msg.getUrl()) : true)
+                .filter(url -> config.isRestrictDomain() ? sameDomain(url, currentUrl) : true)
                 .filter(url -> matchesKeywords(url, config.getTopicKeywords()))
                 .collect(Collectors.toSet());
     }
@@ -87,11 +83,6 @@ public class LinkExtractorService {
         }
     }
 
-    private String removeFragment(String url) {
-        int idx = url.indexOf("#");
-        return (idx != -1) ? url.substring(0, idx) : url;
-    }
-
     private boolean isValidUrl(String url) {
         if (url == null || url.isBlank()) {
             return false;
@@ -105,30 +96,20 @@ public class LinkExtractorService {
         }
     }
 
-    private String removeTrailingSlash(String url) {
-        if (url.endsWith("/")) {
-            return url.substring(0, url.length() - 1);
-        }
-        return url;
-    }
-
     private boolean hasBlockedExtension(String url) {
         String lower = url.toLowerCase();
         return BLOCKED_EXTENSIONS.stream().anyMatch(lower::endsWith);
     }
 
-    public boolean isRelevant(CrawlMessage msg) {
-
-        if (msg.getConfig() == null ||
-                msg.getConfig().getTopicKeywords() == null ||
-                msg.getConfig().getTopicKeywords().isEmpty()) {
+    public boolean isRelevant(String title, String text, CrawlConfig config) {
+        if (config == null || config.getTopicKeywords() == null || config.getTopicKeywords().isEmpty()) {
             return true;
         }
 
-        String text = (msg.getTitle() + " " + msg.getText()).toLowerCase();
+        String searchable = ((title == null ? "" : title) + " " + (text == null ? "" : text)).toLowerCase();
 
-        for (String keyword : msg.getConfig().getTopicKeywords()) {
-            if (text.contains(keyword.toLowerCase())) {
+        for (String keyword : config.getTopicKeywords()) {
+            if (searchable.contains(keyword.toLowerCase())) {
                 return true;
             }
         }

@@ -25,6 +25,12 @@ public class RabbitConfig {
     @Value("${rabbitmq.routing-key}")
     private String routingKey;
 
+    @Value("${rabbitmq.discovered-queue:discovered-links-queue}")
+    private String discoveredQueueName;
+
+    @Value("${rabbitmq.discovered-routing-key:discovered.links}")
+    private String discoveredRoutingKey;
+
     @Bean
     public Queue crawlQueue() {
         return QueueBuilder.durable(crawlQueueName).build();
@@ -32,7 +38,7 @@ public class RabbitConfig {
 
     @Bean
     public Queue discoveredQueue() {
-        return QueueBuilder.durable("discovered-links-queue").build();
+        return QueueBuilder.durable(discoveredQueueName).build();
     }
 
     @Bean
@@ -49,6 +55,14 @@ public class RabbitConfig {
     }
 
     @Bean
+    public Binding discoveredBinding() {
+        return BindingBuilder
+                .bind(discoveredQueue())
+                .to(crawlExchange())
+                .with(discoveredRoutingKey);
+    }
+
+    @Bean
     public Jackson2JsonMessageConverter messageConverter() {
         return new Jackson2JsonMessageConverter();
     }
@@ -56,8 +70,8 @@ public class RabbitConfig {
     @Bean
     public RabbitTemplate rabbitTemplate(
             ConnectionFactory connectionFactory,
-            Jackson2JsonMessageConverter converter) {
-
+            Jackson2JsonMessageConverter converter
+    ) {
         RabbitTemplate template = new RabbitTemplate(connectionFactory);
         template.setMessageConverter(converter);
         return template;
@@ -66,16 +80,13 @@ public class RabbitConfig {
     @Bean
     public SimpleRabbitListenerContainerFactory rabbitListenerContainerFactory(
             ConnectionFactory connectionFactory,
-            Jackson2JsonMessageConverter converter) {
-
-        SimpleRabbitListenerContainerFactory factory =
-                new SimpleRabbitListenerContainerFactory();
-
+            Jackson2JsonMessageConverter converter
+    ) {
+        SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
         factory.setConnectionFactory(connectionFactory);
         factory.setMessageConverter(converter);
         factory.setPrefetchCount(1);
         factory.setConcurrentConsumers(1);
-
         return factory;
     }
 }

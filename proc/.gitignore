@@ -39,3 +39,11 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Local planning/docs from repo root (when working from proc module)
+../Cognitron_Hardening_Tasklist.md
+../docs/COGNITRON_OBSERVATORY_PRD.md
+../docs/OBSERVATORY_TASK_BOARD.md
+
+# Local wrapper script edits
+mvnw-local.cmd

@@ -1,19 +1,28 @@
 package com.proc.proc.Service;
 
-import com.proc.proc.Model.CrawlMessage;
-import org.springframework.amqp.core.AmqpTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.proc.proc.Model.CrawlTask;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
 public class DiscoveredLinkPublisher {
 
-    @Autowired
-    private AmqpTemplate amqpTemplate;
+    private final RabbitTemplate rabbitTemplate;
+    private final String exchange;
+    private final String discoveredRoutingKey;
 
-    private final String QUEUE_NAME = "discovered-links-queue";
+    public DiscoveredLinkPublisher(
+            RabbitTemplate rabbitTemplate,
+            @Value("${rabbitmq.exchange}") String exchange,
+            @Value("${rabbitmq.discovered-routing-key:discovered.links}") String discoveredRoutingKey
+    ) {
+        this.rabbitTemplate = rabbitTemplate;
+        this.exchange = exchange;
+        this.discoveredRoutingKey = discoveredRoutingKey;
+    }
 
-    public void publish(CrawlMessage url) {
-        amqpTemplate.convertAndSend(QUEUE_NAME, url);
+    public void publish(CrawlTask task) {
+        rabbitTemplate.convertAndSend(exchange, discoveredRoutingKey, task);
     }
 }

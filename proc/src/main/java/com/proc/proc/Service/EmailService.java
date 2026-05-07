@@ -29,21 +29,21 @@ public class EmailService {
         
         for (JobPosting job : jobs) {
             emailBody.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
-            emailBody.append("📌 ").append(job.getTitle()).append("\n");
-            emailBody.append("🏢 ").append(job.getCompany()).append("\n");
-            emailBody.append("📍 ").append(job.getLocation()).append("\n");
+            emailBody.append(" ").append(job.getTitle()).append("\n");
+            emailBody.append(" ").append(job.getCompany()).append("\n");
+            emailBody.append(" ").append(job.getLocation()).append("\n");
             
             if (job.getSalary() != null) {
-                emailBody.append("💰 ").append(job.getSalary()).append("\n");
+                emailBody.append(" ").append(job.getSalary()).append("\n");
             }
             if (job.getExperience() != null) {
-                emailBody.append("⏳ ").append(job.getExperience()).append("\n");
+                emailBody.append(" ").append(job.getExperience()).append("\n");
             }
             if (job.getSkills() != null) {
-                emailBody.append("🔧 Skills: ").append(job.getSkills()).append("\n");
+                emailBody.append(" Skills: ").append(job.getSkills()).append("\n");
             }
             
-            emailBody.append("🔗 Apply: ").append(job.getApplicationLink()).append("\n\n");
+            emailBody.append(" Apply: ").append(job.getApplicationLink()).append("\n\n");
         }
         
         emailBody.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
@@ -53,7 +53,7 @@ public class EmailService {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom(fromEmail);
         message.setTo(toEmail);
-        message.setSubject("🎯 JobHunt Alert: " + jobs.size() + " New Jobs Found!");
+        message.setSubject(" JobHunt Alert: " + jobs.size() + " New Jobs Found!");
         message.setText(emailBody.toString());
         
         try {

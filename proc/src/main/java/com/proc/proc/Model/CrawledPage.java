@@ -1,10 +1,24 @@
 package com.proc.proc.Model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "crawled_page", indexes = {
+    @Index(name = "idx_url", columnList = "url", unique = true),
+    @Index(name = "idx_domain", columnList = "domain"),
+    @Index(name = "idx_run_id", columnList = "runId")
+})
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class CrawledPage {
 
     @Id
@@ -14,84 +28,29 @@ public class CrawledPage {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String url;
 
+    private String domain;
+
     private String title;
 
-    @Column(columnDefinition = "LONGTEXT")
-    private String text;
-
+    @Lob
     @Column(columnDefinition = "LONGTEXT")
     private String html;
 
-    private String source;
+    @Lob
+    @Column(columnDefinition = "LONGTEXT")
+    private String text;
 
+    private int depth;
+
+    @CreationTimestamp
     private LocalDateTime crawledAt;
 
-    public CrawledPage() {
-    }
+    private String runId;
 
-    public CrawledPage(Long id, String url, String title, String text, String html, String source, LocalDateTime crawledAt) {
-        this.id = id;
-        this.url = url;
-        this.title = title;
-        this.text = text;
-        this.html = html;
-        this.source = source;
-        this.crawledAt = crawledAt;
-    }
+    private String parentUrl;
 
-    public Long getId() {
-        return id;
-    }
+    private String status;
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getText() {
-        return text;
-    }
-
-    public void setText(String text) {
-        this.text = text;
-    }
-
-    public String getHtml() {
-        return html;
-    }
-
-    public void setHtml(String html) {
-        this.html = html;
-    }
-
-    public String getSource() {
-        return source;
-    }
-
-    public void setSource(String source) {
-        this.source = source;
-    }
-
-    public LocalDateTime getCrawledAt() {
-        return crawledAt;
-    }
-
-    public void setCrawledAt(LocalDateTime crawledAt) {
-        this.crawledAt = crawledAt;
-    }
+    @Column(length = 1000)
+    private String errorMessage;
 }

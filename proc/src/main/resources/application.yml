@@ -30,9 +30,15 @@ rabbitmq:
   port: 5672
   username: guest
   password: guest
+  management:
+    url: http://localhost:15672
+    username: ${RABBITMQ_USER:guest}
+    password: ${RABBITMQ_PASS:guest}
   queue: content-crawl-queue
-  exchange: content-exchange
-  routing-key: crawl.key
+  exchange: cognitron.exchange
+  routing-key: crawl.task
+  discovered-routing-key: crawl.discovered
+  discovered-queue: discovered-links-queue
 
 cognitron:
   crawl:
