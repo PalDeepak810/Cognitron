@@ -1,32 +1,29 @@
 package com.dp.crawl.Listener;
 
-import com.dp.crawl.Model.CrawlMessage;
+import com.dp.crawl.Model.CrawlTask;
+import com.dp.crawl.Service.CrawlTaskFactory;
 import com.dp.crawl.Service.PublishService;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class DiscoveredLinkListener {
 
-    @Autowired
-    private PublishService publishService;
+    private final PublishService publishService;
+    private final CrawlTaskFactory crawlTaskFactory;
+
+    public DiscoveredLinkListener(PublishService publishService, CrawlTaskFactory crawlTaskFactory) {
+        this.publishService = publishService;
+        this.crawlTaskFactory = crawlTaskFactory;
+    }
 
     @RabbitListener(queues = "${cognitron.rabbitmq.discovered-queue}")
-    public void processDiscoveredLink(CrawlMessage parentMsg) {
-
-        if (parentMsg == null || parentMsg.getUrl() == null || parentMsg.getConfig() == null) {
+    public void processDiscoveredLink(CrawlTask parentTask) {
+        if (parentTask == null || parentTask.getUrl() == null || parentTask.getUrl().isBlank()) {
             return;
         }
 
-        CrawlMessage msg = new CrawlMessage();
-        msg.setUrl(parentMsg.getUrl());
-        msg.setDepth(parentMsg.getDepth());   // depth already incremented by processor
-        msg.setParentUrl(parentMsg.getParentUrl());
-        msg.setConfig(parentMsg.getConfig()); // SAME CONFIG
-        msg.setRunId(parentMsg.getRunId());
-        msg.setRunPageLimit(parentMsg.getRunPageLimit());
-
-        publishService.publish(msg);
+        CrawlTask task = crawlTaskFactory.createFromDiscovered(parentTask);
+        publishService.publish(task);
     }
 }

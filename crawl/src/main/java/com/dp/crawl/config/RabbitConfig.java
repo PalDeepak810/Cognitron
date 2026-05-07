@@ -27,6 +27,9 @@ public class RabbitConfig {
     @Value("${cognitron.rabbitmq.discovered-queue}")
     private String discoveredQueueName;
 
+    @Value("${cognitron.rabbitmq.discovered-routing-key:discovered.links}")
+    private String discoveredRoutingKey;
+
     @Bean
     public Queue crawlQueue() {
         return QueueBuilder.durable(queueName).build();
@@ -51,6 +54,14 @@ public class RabbitConfig {
     }
 
     @Bean
+    public Binding discoveredBinding() {
+        return BindingBuilder
+                .bind(discoveredQueue())
+                .to(crawlExchange())
+                .with(discoveredRoutingKey);
+    }
+
+    @Bean
     public Jackson2JsonMessageConverter messageConverter() {
         return new Jackson2JsonMessageConverter();
     }
@@ -58,8 +69,8 @@ public class RabbitConfig {
     @Bean
     public RabbitTemplate rabbitTemplate(
             ConnectionFactory connectionFactory,
-            Jackson2JsonMessageConverter converter) {
-
+            Jackson2JsonMessageConverter converter
+    ) {
         RabbitTemplate template = new RabbitTemplate(connectionFactory);
         template.setMessageConverter(converter);
         return template;

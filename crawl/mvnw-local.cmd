@@ -88,7 +88,19 @@ if (-not (Test-Path -Path $MAVEN_M2_PATH)) {
     New-Item -Path $MAVEN_M2_PATH -ItemType Directory | Out-Null
 }
 
-$M2PathItem = Get-Item $MAVEN_M2_PATH`r`n$M2Target = $M2PathItem.Target`r`nif ($M2Target -is [array]) {`r`n  $M2Target = $M2Target[0]`r`n}`r`n`r`nif ([string]::IsNullOrWhiteSpace([string]$M2Target)) {`r`n  $MAVEN_WRAPPER_DISTS = "$MAVEN_M2_PATH/wrapper/dists"`r`n} else {`r`n  $MAVEN_WRAPPER_DISTS = $M2Target + "/wrapper/dists"`r`n}`r`n`r`n$MAVEN_HOME_PARENT = "$MAVEN_WRAPPER_DISTS/$distributionUrlNameMain"
+$M2PathItem = Get-Item $MAVEN_M2_PATH
+$M2Target = $M2PathItem.Target
+if ($M2Target -is [array]) {
+  $M2Target = $M2Target[0]
+}
+
+if ([string]::IsNullOrWhiteSpace([string]$M2Target)) {
+  $MAVEN_WRAPPER_DISTS = "$MAVEN_M2_PATH/wrapper/dists"
+} else {
+  $MAVEN_WRAPPER_DISTS = $M2Target + "/wrapper/dists"
+}
+
+$MAVEN_HOME_PARENT = "$MAVEN_WRAPPER_DISTS/$distributionUrlNameMain"
 $MAVEN_HOME_NAME = ([System.Security.Cryptography.SHA256]::Create().ComputeHash([byte[]][char[]]$distributionUrl) | ForEach-Object {$_.ToString("x2")}) -join ''
 $MAVEN_HOME = "$MAVEN_HOME_PARENT/$MAVEN_HOME_NAME"
 
