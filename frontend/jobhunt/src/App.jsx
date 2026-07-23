@@ -6,6 +6,7 @@ import DashboardPage from './pages/DashboardPage';
 import ObservatoryPage from './pages/ObservatoryPage';
 import ObservatoryHistoryPage from './pages/ObservatoryHistoryPage';
 import ObservatoryTracePage from './pages/ObservatoryTracePage';
+import SignupPage from './pages/SignupPage';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <main className="container-xl page-enter">
           <Routes>
             <Route path="/" element={<LandingPage />} />
+            <Route path="/signup" element={<SignupPage />} />
             <Route path="/jobs" element={<JobsPage />} />
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/observatory" element={<ObservatoryPage />} />
