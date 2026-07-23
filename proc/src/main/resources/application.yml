@@ -1,12 +1,21 @@
 server:
-  port: 8082
+  port: ${SERVER_PORT:8082}
 
 spring:
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:local}
+
   datasource:
-    url: jdbc:mysql://localhost:3306/cognitron?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-    username: root
-    password: Dp810@310
+    url: ${DB_URL:jdbc:mysql://localhost:3306/cognitron?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:root}
     driver-class-name: com.mysql.cj.jdbc.Driver
+
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USER:guest}
+    password: ${RABBITMQ_PASS:guest}
 
   jpa:
     hibernate:
@@ -14,10 +23,10 @@ spring:
     show-sql: true
 
   mail:
-    host: smtp.gmail.com
-    port: 587
-    username: your-email@gmail.com
-    password: your-app-password
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:your-email@gmail.com}
+    password: ${MAIL_PASSWORD:your-app-password}
     properties:
       mail:
         smtp:
@@ -25,21 +34,19 @@ spring:
           starttls:
             enable: true
 
-rabbitmq:
-  host: localhost
-  port: 5672
-  username: guest
-  password: guest
-  management:
-    url: http://localhost:15672
-    username: ${RABBITMQ_USER:guest}
-    password: ${RABBITMQ_PASS:guest}
-  queue: content-crawl-queue
-  exchange: cognitron.exchange
-  routing-key: crawl.task
-  discovered-routing-key: crawl.discovered
-  discovered-queue: discovered-links-queue
-
 cognitron:
+  rabbitmq:
+    queue: ${RABBITMQ_QUEUE:content-crawl-queue}
+    exchange: ${RABBITMQ_EXCHANGE:cognitron.exchange}
+    routing-key: ${RABBITMQ_ROUTING_KEY:crawl.task}
+    discovered-routing-key: ${RABBITMQ_DISCOVERED_ROUTING_KEY:crawl.discovered}
+    discovered-queue: ${RABBITMQ_DISCOVERED_QUEUE:discovered-links-queue}
+
   crawl:
-    global-max-pages-per-24h: 200
+    global-max-pages-per-24h: ${GLOBAL_MAX_PAGES_PER_24H:200}
+
+rabbitmq:
+  management:
+    url: ${RABBITMQ_MANAGEMENT_URL:http://localhost:15672}
+    username: ${RABBITMQ_MANAGEMENT_USER:guest}
+    password: ${RABBITMQ_MANAGEMENT_PASS:guest}
