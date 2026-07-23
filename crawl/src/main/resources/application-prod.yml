@@ -1,0 +1,14 @@
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  rabbitmq:
+    host: ${RABBITMQ_HOST}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USER}
+    password: ${RABBITMQ_PASS}
+    virtual-host: ${RABBITMQ_VHOST}
+
+server:
+  port: ${SERVER_PORT:8081}

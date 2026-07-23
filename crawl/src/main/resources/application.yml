@@ -1,20 +1,18 @@
 server:
-  port: 8081
+  port: ${SERVER_PORT:8081}
 
 spring:
-  rabbitmq:
-    host: localhost
-    port: 5672
-    username: guest
-    password: guest
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:local}
+
   jackson:
     serializer:
       indent_output: true
 
 cognitron:
   rabbitmq:
-    exchange: cognitron.exchange
-    routing-key: crawl.task
-    discovered-routing-key: crawl.discovered
-    queue: content-crawl-queue
-    discovered-queue: discovered-links-queue
+    exchange: ${RABBITMQ_EXCHANGE:cognitron.exchange}
+    routing-key: ${RABBITMQ_ROUTING_KEY:crawl.task}
+    discovered-routing-key: ${RABBITMQ_DISCOVERED_ROUTING_KEY:crawl.discovered}
+    queue: ${RABBITMQ_QUEUE:content-crawl-queue}
+    discovered-queue: ${RABBITMQ_DISCOVERED_QUEUE:discovered-links-queue}
